@@ -7,17 +7,17 @@ var InitDemo = function () {
 			console.error(vsErr);
 			console.log("hi");
 		} else {
-			loadTextResource('/shader.fs.glsl', function (fsErr, fsText) {
+			loadTextResource('/InNatureOpenGL/shader.fs.glsl', function (fsErr, fsText) {
 				if (fsErr) {
 					alert('Fatal error getting fragment shader (see console)');
 					console.error(fsErr);
 				} else {
-					loadJSONResource('/amos.json', function (modelErr, modelObj) {
+					loadJSONResource('/InNatureOpenGL/amos.json', function (modelErr, modelObj) {
 						if (modelErr) {
 							alert('Fatal error getting Amos model (see console)');
 							console.error(fsErr);
 						} else {
-							loadImage('/grey.png', function (imgErr, img) {
+							loadImage('/InNatureOpenGL/grey.png', function (imgErr, img) {
 								if (imgErr) {
 									alert('Fatal error getting amos texture (see console)');
 									console.error(imgErr);
