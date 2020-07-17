@@ -221,7 +221,7 @@ var RunDemo = function (vertexShaderText, fragmentShaderText, AmosImage, AmosMod
     glMatrix.mat4.mul(worldMatrix, xRotationMatrix, yRotationMatrix);
     gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, worldMatrix);
 
-    gl.clearColor(0.180, 0.214, 0.180, 0.3);
+    gl.clearColor(0.165, 0.230, 0.158, 1.0); 
     gl.clear(gl.DEPTH_BUFFER_BIT | gl.COLOR_BUFFER_BIT);
 
     gl.bindTexture(gl.TEXTURE_2D, boxTexture);
