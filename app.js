@@ -1,17 +1,7 @@
 var gl;
 
 var InitDemo = function () {
-	loadTextResource('/shader.vs.glsl', function (vsErr, vsText) {
-		if (vsErr) {
-			alert('Fatal error getting vertex shader (see console)');
-			console.error(vsErr);
-			console.log("hi");
-		} else {
-			loadTextResource('/shader.fs.glsl', function (fsErr, fsText) {
-				if (fsErr) {
-					alert('Fatal error getting fragment shader (see console)');
-					console.error(fsErr);
-				} else {
+
 					loadJSONResource('/amos.json', function (modelErr, modelObj) {
 						if (modelErr) {
 							alert('Fatal error getting Amos model (see console)');
@@ -27,10 +17,7 @@ var InitDemo = function () {
 							});
 						}
 					});
-				}
-			});
-		}
-	});
+
 };
 
 var RunDemo = function (vertexShaderText, fragmentShaderText, AmosImage, AmosModel) {
