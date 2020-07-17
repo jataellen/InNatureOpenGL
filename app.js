@@ -5,6 +5,7 @@ var InitDemo = function () {
 		if (vsErr) {
 			alert('Fatal error getting vertex shader (see console)');
 			console.error(vsErr);
+			console.log("hi");
 		} else {
 			loadTextResource('/shader.fs.glsl', function (fsErr, fsText) {
 				if (fsErr) {
