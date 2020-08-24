@@ -1,14 +1,286 @@
 <html>
   <head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <script src="three.js"></script>
+    <script src="Detector.js"></script>
+    <script src="OrbitControls.js"></script>
+    <script src="OBJLoader.js"></script>
+    <script src="MTLLoader.js"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <title>Web GL - Rotating Cube</title>
+    <link rel="stylesheet" href="style.css">
   </head>
   <body onLoad="InitDemo();">
-    <canvas id="myCanvas" width="600" height="600">
-      Your browser does not support HTML5
-    </canvas>
-    <br />
-    <script src="gl-matrix.js"></script>
-    <script src="util.js"></script>
-    <script src="app.js"></script>
+
+    <div id="main">
+      <div id="container">
+
+        <div id="left">
+          <div id="totalWeight" style="width:400px; height:50px;">
+            <div style="width: 59%;">
+              <div id="container">
+                <div style="width: 65%;">
+                  <p class="total">Price: </p>
+                </div>
+                <div style="width: 30%;">
+                  <div class="custom-select" id="currency" style="width:75px;">
+                    <select>
+                      <option value="0">CAD</option>
+                      <option value="1">USD</option>
+                      <option value="1">Euro</option>
+                    </select>
+                  </div>
+                </div>
+                <div style="width: 5%;">
+                </div>
+              </div>
+            </div>
+            <div style="width: 1%;"></div>
+            <div style="width: 40%;">
+              <p class="weight">Weight: </p>
+            </div>
+          </div>
+
+          <div id="canvasDiv">
+          </div>
+          <div class="hide">
+            <script src="app.js"></script>
+          </div>
+          <div style="text-align: center; margin-top:-20px; margin-left:-30px;">
+          <div class="tooltip">
+            <i class="fa fa-question" id="toolTip"></i>
+            <span class="tooltiptext" id="ttRQ">Press arrow keys or right click and drag to translate</br>
+                                                  Left click and drag to rotate</br>
+                                                  Press "L" for perspective lighting</br>
+                                                  Press "Z" to zoom in, "X" to zoom out</span>
+          </div>
+        </div>
+
+
+        </div>
+        <div id="center"></div>
+        <div id="right">
+          <div id="options">
+
+            <!-- Base Type -->
+            <div class="heading">Base Type</div>
+            <div id = "container">
+              <div>
+                <div class="custom-select" style="width:200px;">
+                  <select>
+                    <option value="0">Catamaran</option>
+                    <option value="1">Surfboard</option>
+                    <option value="2">Short Catamaran</option>
+                    <option value="2">Short Surfboard</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="tooltip">
+                <i class="fa fa-question" id="toolTip"></i>
+                <span class="tooltiptext" id="ttBase">Foam core boat hull available as surfboard (7.5 ft x 2 ft x 4") <br>Price: xxxx.xx Weight: xxkg<br>
+                                                          Catamaran (6 ft x 2 ft x 4")<br> Both have a protective fiberglass
+                                                          layer. Surfboard weighs 10.5 lbs, catamaran weighs a bit more
+                                                          (14 lbs).</span>
+              </div>
+            </div>
+
+            <!-- Solar Panel -->
+            <div class="heading">Solar</div>
+            <div id="container">
+              <div style="width: 30%;">
+                <div id = "solarCheck">
+                  <label class="checkBoxContainer">Solar Panel
+                    <input type="checkbox" checked="checked">
+                    <span class="checkmark"></span>
+                  </label>
+                </div>
+              </div>
+              <div style="width: 1%;">
+              </div>
+              <div style="width: 69%;">
+                <div class="tooltipCB">
+                  <i class="fa fa-question" id="toolTip"></i>
+                  <span class="tooltiptext" id="ttSolar">xxxx</span>
+                </div>
+              </div>
+            </div>
+
+
+            <!-- Propulsion -->
+            <div class="heading">Propulsion</div>
+            <div id = "container">
+              <div>
+                <div class="custom-select" style="width:200px;">
+                  <select>
+                    <option value="0">Air Propeller</option>
+                    <option value="1">Single Water Propeller</option>
+                    <option value="2">Dual Water Propellers</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="tooltip">
+                <i class="fa fa-question" id="toolTip"></i>
+                <span class="tooltiptext" id="ttProp">xxxx</span>
+              </div>
+            </div>
+
+            <!-- Propeller Cage -->
+            <div id="container">
+              <div style="width: 35%;">
+                <div id = "propCheck">
+                  <label class="checkBoxContainer">Propeller Cage
+                    <input type="checkbox" checked="checked">
+                    <span class="checkmark"></span>
+                  </label>
+                </div>
+              </div>
+              <div style="width: 1%;">
+              </div>
+              <div style="width: 64%;">
+                <div class="tooltipCB">
+                  <i class="fa fa-question" id="toolTip"></i>
+                  <span class="tooltiptext" id="ttPropCage">xxxx</span>
+                </div>
+              </div>
+            </div>
+
+
+            <!-- Electronics Boxes -->
+            <div class="heading">Electronics Boxes</div>
+            <div id = "container">
+              <div>
+                <div class="custom-select" style="width:250px;">
+                  <select>
+                    <option value="0">Two Large Enclosures</option>
+                    <option value="1">Three Small Enclosures</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="tooltip">
+                <i class="fa fa-question" id="toolTip"></i>
+                <span class="tooltiptext" id="ttEB">xxxx</span>
+              </div>
+            </div>
+
+            <!-- Battery -->
+            <div class="heading">Battery</div>
+            <div id = "container">
+              <div>
+                <div class="custom-select" style="width:300px;">
+                  <select>
+                    <option value="0">12V Lithium Phosphate (10 AH)</option>
+                    <option value="1">12V Lithium Phosphate (23 AH)</option>
+                    <option value="1">12V Lithium Phosphate (46 AH)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="tooltip">
+                <i class="fa fa-question" id="toolTip"></i>
+                <span class="tooltiptext" id="ttBattery">xxxx</span>
+              </div>
+            </div>
+
+            <div id="container">
+              <div id="cleft">
+                <!-- Communications -->
+                <div class="heading">Communications (select one or more)</div>
+                <div id = "communicationsBoxes">
+                  <label class="checkBoxContainer">Wireless Serial (up to 500m)
+                    <input type="checkbox" id="primary" checked="checked">
+                    <span class="checkmark"></span>
+                  </label>
+
+                  <label class="checkBoxContainer">Cellular USB Stick
+                    <input type="checkbox">
+                    <span class="checkmark"></span>
+                  </label>
+
+                  <label class="checkBoxContainer">Satellite Modem
+                    <input type="checkbox">
+                    <span class="checkmark"></span>
+                  </label>
+                </div>
+              </div>
+              <div id="center"></div>
+              <div id="cright">
+                <div class="tooltip">
+                  <i class="fa fa-question" id="toolTip"></i>
+                  <span class="tooltiptext" id="ttComs">xxxx</span>
+                </div>
+              </div>
+          </div>
+
+
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+      <div id="bottomPanel">
+        <button id="myBtn">Request Quotation</button>
+        <div class="tooltip" >
+          <i class="fa fa-question" id="toolTip"></i>
+          <span class="tooltiptext" id="ttRQ">xxxx</span>
+        </div>
+      </div>
+    </span>
+
+
+    <!-- The Modal -->
+    <div id="myModal" class="modal">
+      <!-- Modal content -->
+      <div class="modal-content">
+        <div style="height: 35px; display:flex">
+          <p class="modalHeading" style="width: 95%;">Request a Quote</p>
+          <span class="close" style="width: 5%;">&times;</span>
+        </div>
+
+        <form id = "quoteForm" action="mailto:jata@innaturerobotics.com" method="post" enctype="text/plain">
+          <p class="modalSelectedHeading" >Specifications</p>
+          <div id="modalSelected">
+            <textarea readonly=readonly name="selectedBase" class="selectedBase" form="quoteForm"></textarea>
+            <textarea readonly=readonly name="selectedSolar" class="selectedSolar"></textarea>
+            <textarea readonly=readonly name="selectedPropulsion" class="selectedPropulsion"></textarea>
+            <textarea readonly=readonly name="selectedCage" class="selectedCage"></textarea>
+            <textarea readonly=readonly name="selectedEB" class="selectedEB"></textarea>
+            <textarea readonly=readonly name="selectedBattery" class="selectedBattery"></textarea>
+            <textarea readonly=readonly name="selectedCom" class="selectedCom"></textarea>
+          </div>
+
+
+          <div style="display: flex;">
+            <label for="fname" style="width: 30%; margin: 8px ;" >First name:</label>
+            <input type="text" id="fname" name="fname" placeholder="First Name" style="width: 70%;" required><br><br>
+          </div>
+          <div style="display: flex;">
+            <label for="lname" style="width: 30%; margin: 8px ;">Last name:</label>
+            <input type="text" id="lname" name="lname" placeholder="Last Name" style="width: 70%;" required><br><br>
+          </div>
+          <div style="display: flex;">
+            <label for="email" style="width: 30%; margin: 8px ;">Email Address:</label>
+            <input type="text" id="email" name="email" placeholder="Email Address" style="width: 70%;" required><br><br>
+          </div>
+          <div style="display: flex;">
+            <label for="phone" style="width: 30%; margin: 8px ;">Phone Number:</label>
+            <input type="text" id="phone" name="phone" placeholder="Phone Number" style="width: 70%;"><br><br>
+          </div>
+
+          <input type="submit" value="Submit Form" >
+        </form>
+
+
+
+      </div>
+    </div>
+
   </body>
 </html>

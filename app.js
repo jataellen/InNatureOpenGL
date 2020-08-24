@@ -1,237 +1,565 @@
 var gl;
 
-var InitDemo = function () {
-	loadTextResource('/InNatureOpenGL/shader.vs.glsl', function (vsErr, vsText) {
-		if (vsErr) {
-			alert('Fatal error getting vertex shader (see console)');
-			console.error(vsErr);
-			console.log("hi");
-		} else {
-			loadTextResource('/InNatureOpenGL/shader.fs.glsl', function (fsErr, fsText) {
-				if (fsErr) {
-					alert('Fatal error getting fragment shader (see console)');
-					console.error(fsErr);
-				} else {
-					loadJSONResource('/InNatureOpenGL/amos.json', function (modelErr, modelObj) {
-						if (modelErr) {
-							alert('Fatal error getting Amos model (see console)');
-							console.error(fsErr);
-						} else {
-							loadImage('/InNatureOpenGL/grey.png', function (imgErr, img) {
-								if (imgErr) {
-									alert('Fatal error getting amos texture (see console)');
-									console.error(imgErr);
-								} else {
-									RunDemo(vsText, fsText, img, modelObj);
-								}
-							});
-						}
-					});
-				}
-			});
-		}
-	});
-};
+var selectedArray = [];
 
-var RunDemo = function (vertexShaderText, fragmentShaderText, AmosImage, AmosModel) {
-  console.log('This is working');
-
-  var canvas = document.getElementById('myCanvas');
-  var gl = canvas.getContext('webgl');
-  if (!gl){
-    console.log('WebGl not supported without experimental');
-    gl = canvas.getContext('experimental-webgl');
-  }
-  if (!gl){
-    alert('Your browser does not support WebGL');
-  }
-
-  gl.clearColor(0.75, 0.85, 0.8, 1.0);
-  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-  gl.enable(gl.DEPTH_TEST);
-  gl.enable(gl.CULL_FACE);
-  gl.frontFace(gl.CCW);
-  gl.cullFace(gl.BACK);
-
-  //CREATE SHADERS
-  var vertexShader = gl.createShader(gl.VERTEX_SHADER);
-  var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
-
-  gl.shaderSource(vertexShader, vertexShaderText);
-  gl.shaderSource(fragmentShader, fragmentShaderText);
-
-  gl.compileShader(vertexShader);
-  if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)){
-    console.error('ERROR COMPILING VERTEX SHADER',gl.getShaderInfoLog(vertexShader));
-    return;
-  }
-  gl.compileShader(fragmentShader);
-  if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)){
-    console.error('ERROR COMPILING FRAGMENT SHADER',gl.getShaderInfoLog(fragmentShader));
-    return;
-  }
-
-  var program = gl.createProgram();
-  gl.attachShader(program, vertexShader);
-  gl.attachShader(program, fragmentShader);
-  gl.linkProgram(program);
-  if (!gl.getProgramParameter(program, gl.LINK_STATUS)){
-    console.error('ERROR LINKING PROGRAM', gl.getProgramInfoLog(program));
-    return;
-  }
-
-  //ONLY FOR TESTING
-  gl.validateProgram(program);
-  if (!gl.getProgramParameter(program, gl.VALIDATE_STATUS)){
-    console.error('ERROR VALIDATING PROGRAM',gl.getProgramInfoLog(program));
-    return;
-  }
-
-  //CREATE BUFFER
-	var amosVertices = AmosModel.meshes[0].vertices;
-	var amosIndices = [].concat.apply([], AmosModel.meshes[0].faces);
-	var amosTexCoords = AmosModel.meshes[0].texturecoords[0];
-
-	var amosPosVertexBufferObject = gl.createBuffer();
-	gl.bindBuffer(gl.ARRAY_BUFFER, amosPosVertexBufferObject);
-	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(amosVertices), gl.STATIC_DRAW);
-
-	var amosTexCoordVertexBufferObject = gl.createBuffer();
-	gl.bindBuffer(gl.ARRAY_BUFFER, amosTexCoordVertexBufferObject);
-	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(amosTexCoords), gl.STATIC_DRAW);
-
-	var amosIndexBufferObject = gl.createBuffer();
-	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, amosIndexBufferObject);
-	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(amosIndices), gl.STATIC_DRAW);
-
-	gl.bindBuffer(gl.ARRAY_BUFFER, amosPosVertexBufferObject);
-	var positionAttribLocation = gl.getAttribLocation(program, 'vertPosition');
-	gl.vertexAttribPointer(
-		positionAttribLocation, // Attribute location
-		3, // Number of elements per attribute
-		gl.FLOAT, // Type of elements
-		gl.FALSE,
-		3 * Float32Array.BYTES_PER_ELEMENT, // Size of an individual vertex
-		0 // Offset from the beginning of a single vertex to this attribute
-	);
-	gl.enableVertexAttribArray(positionAttribLocation);
-
-	gl.bindBuffer(gl.ARRAY_BUFFER, amosTexCoordVertexBufferObject);
-	var texCoordAttribLocation = gl.getAttribLocation(program, 'vertTexCoord');
-	gl.vertexAttribPointer(
-		texCoordAttribLocation, // Attribute location
-		2, // Number of elements per attribute
-		gl.FLOAT, // Type of elements
-		gl.FALSE,
-		2 * Float32Array.BYTES_PER_ELEMENT, // Size of an individual vertex
-		0
-	);
-	gl.enableVertexAttribArray(texCoordAttribLocation);
-
-  var matWorldUniformLocation = gl.getUniformLocation(program, 'mWorld');
-  var matViewUniformLocation = gl.getUniformLocation(program, 'mView');
-  var matProjUniformLocation = gl.getUniformLocation(program, 'mProj');
-
-  //Create texture
-  var boxTexture = gl.createTexture();
-	gl.bindTexture(gl.TEXTURE_2D, boxTexture);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-	gl.texImage2D(
-		gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA,
-		gl.UNSIGNED_BYTE,
-		AmosImage
-	);
-	gl.bindTexture(gl.TEXTURE_2D, null);
-
-  //tell openGL state machine which prog should be active
-  gl.useProgram(program);
+var optionsArray = ["Catamaran",
+"Surfboard",
+"Short Catamaran",
+"Short Surfboard",
+"Solar Panel",
+"Air Propeller",
+"Single Water Propeller",
+"Dual Water Propellers",
+"Propeller Cage",
+"Two Large Enclosures",
+"Three Small Enclosures",
+"12V Lithium Phosphate (10 AH)",
+"12V Lithium Phosphate (23 AH)",
+"12V Lithium Phosphate (46 AH)",
+"Wireless Serial (up to 500m)",
+"Cellular USB Stick",
+"Satellite Modem"];
 
 
-  //set vals of ^
-  var worldMatrix = new Float32Array(16);
-  var viewMatrix = new Float32Array(16);
-  var projMatrix = new Float32Array(16);
-  glMatrix.mat4.identity(worldMatrix);
-  glMatrix.mat4.lookAt(viewMatrix, [0,0,-300], [0,0,0],[0,1,0]);
-  glMatrix.mat4.perspective(projMatrix, glMatrix.glMatrix.toRadian(45), canvas.width/canvas.height, 0.1, 1000.0);
+//i there is no .obj in the string, there is no associated change in model
+var optionsModelArray = ['catamaranLong.obj',
+	'surfboardLong',
+	'catamaranShort',
+	'surfboardShort',
+	'solarPanel.obj',
+	'airPropeller.obj',
+	'singleWaterPropeller',
+	'dualWaterPropeller',
+	'propellerCage.obj',
+	'twoLargeEnclosures.obj',
+	'threeSmallEnclosures',
+	'battery10',
+	'battery23',
+	'battery46',
+	'wirelessSerial',
+	'cellularUSB',
+	'satelliteModem'
+]
 
-  //send to shader
-  gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, worldMatrix);
-  gl.uniformMatrix4fv(matViewUniformLocation, gl.FALSE, viewMatrix);
-  gl.uniformMatrix4fv(matProjUniformLocation, gl.FALSE, projMatrix);
+var optionsModelMaterialArray = ['catamaranLong.mtl',
+	'surfboardLong.mtl',
+	'catamaranShort.mtl',
+	'surfboardShort.mtl',
+	'solarPanel.mtl',
+	'airPropeller.mtl',
+	'singleWaterPropeller.mtl',
+	'dualWaterPropeller.mtl',
+	'propellerCage.mtl',
+	'twoLargeEnclosures.mtl',
+	'threeSmallEnclosures.mtl',
+	'battery10.mtl',
+	'battery23.mtl',
+	'battery46.mtl',
+	'wirelessSerial.mtl',
+	'cellularUSB.mtl',
+	'satelliteModem.mtl'
+]
 
-  var xRotationMatrix = new Float32Array(16);
-  var yRotationMatrix = new Float32Array(16);
+var pricesArray = [100,
+100,
+100,
+100,
+100,
+100,
+100,
+100,
+100,
+100,
+100,
+100,
+100,
+100,
+100,
+100,
+100];
+
+var weightsArray = [100,
+100,
+100,
+100,
+100,
+100,
+100,
+100,
+100,
+100,
+100,
+100,
+100,
+100,
+100,
+100,
+100];
+
+var currencyArray = [
+	"CAD",
+	"USD",
+	"Euro"
+];
+
+//updated 2020-08-16
+var exchangeRatesFromCAD = [
+	1.00,
+	0.76,
+	0.64
+];
+
+if (!Detector.webgl) {
+            Detector.addGetWebGLMessage();
+        }
+
+var container;
+
+var camera, controls, scene, renderer;
+var lighting, ambient, keyLight, fillLight, backLight;
+
+init();
+animate();
+
+function init() {
+
+		container = document.getElementById("canvasDiv");
+    /* Camera */
+
+    camera = new THREE.PerspectiveCamera(45, 400 / 400, 1, 1000);
+    camera.position.z = -300;
 
 
-	//MOUSE EVENTS
-	 var AMORTIZATION = 0.95;
-	 var drag = false;
-	 var old_x, old_y;
-	 var dX = 0, dY = 0;
+    /* Scene */
 
-	 var mouseDown = function(e) {
-		 drag = true;
-	    old_x = e.pageX, old_y = e.pageY;
-	    e.preventDefault();
-	    return false;
-	 };
+    scene = new THREE.Scene();
+    lighting = false;
 
-	 var mouseUp = function(e){
-	    drag = false;
-	 };
+    ambient = new THREE.AmbientLight(0xffffff, 1.0);
+    scene.add(ambient);
 
-	 var mouseMove = function(e) {
-	    if (!drag) return false;
-	    dX = (e.pageX-old_x)*2*Math.PI/canvas.width,
-	    dY = (e.pageY-old_y)*2*Math.PI/canvas.height;
-	    THETA+= dX;
-	    PHI+=dY;
-	    old_x = e.pageX, old_y = e.pageY;
-	    e.preventDefault();
-	 };
+    keyLight = new THREE.DirectionalLight(new THREE.Color('hsl(30, 100%, 75%)'), 1.0);
+    keyLight.position.set(-100, 0, 100);
 
-	 canvas.addEventListener("mousedown", mouseDown, false);
-	 canvas.addEventListener("mouseup", mouseUp, false);
-	 canvas.addEventListener("mouseout", mouseUp, false);
-	 canvas.addEventListener("mousemove", mouseMove, false);
+    fillLight = new THREE.DirectionalLight(new THREE.Color('hsl(240, 100%, 75%)'), 0.75);
+    fillLight.position.set(100, 0, 100);
+
+    backLight = new THREE.DirectionalLight(0xffffff, 1.0);
+    backLight.position.set(100, 0, -100).normalize();
+
+    /* Model */
+
+    var mtlLoader = new THREE.MTLLoader();
+    mtlLoader.setBaseUrl('/InNatureOpenGL/assets/');
+    mtlLoader.setPath('/InNatureOpenGL/assets/');
+    mtlLoader.load('catamaranLong.mtl', function (materials) {
+
+        materials.preload();
 
 
-  //MAIN RENDER LOOP
-	var THETA = Math.PI, PHI = -1*Math.PI/2;
-  var time_old = 0;
+        var objLoader = new THREE.OBJLoader();
+        objLoader.setMaterials(materials);
+        objLoader.setPath('assets/');
+        objLoader.load('catamaranLong.obj', function (object) {
+            scene.add(object);
+        });
+    });
 
-  var identityMatrix = new Float32Array(16);
-  glMatrix.mat4.identity(identityMatrix);
-  var angle = 0;
-  var loop = function () {
-    angle = performance.now() /1000/6*2*Math.PI;
+    /* Renderer */
 
-		if (!drag) {
-    	dX *= AMORTIZATION, dY*=AMORTIZATION;
-      THETA+=dX, PHI+=dY;
+		var cWidth = document.getElementById("canvasDiv").offsetWidth;
+
+    renderer = new THREE.WebGLRenderer();
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(cWidth-25, cWidth-25);
+    renderer.setClearColor(new THREE.Color("hsl(0, 0%, 10%)"));
+
+    container.appendChild(renderer.domElement);
+
+    /* Controls */
+
+    controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.25;
+    controls.enableZoom = false;
+
+    /* Events */
+
+    window.addEventListener('resize', onWindowResize, false);
+    window.addEventListener('keydown', onKeyboardEvent, false);
+
+}
+
+function onWindowResize() {
+
+  console.log("onWindowResize");
+
+
+}
+
+function onKeyboardEvent(e) {
+
+    if (e.code === 'KeyL') {
+
+        lighting = !lighting;
+
+        if (lighting) {
+
+            ambient.intensity = 0.25;
+            scene.add(keyLight);
+            scene.add(fillLight);
+            scene.add(backLight);
+
+        } else {
+
+            ambient.intensity = 1.0;
+            scene.remove(keyLight);
+            scene.remove(fillLight);
+            scene.remove(backLight);
+
+        }
+
     }
 
+		else if (e.code === 'KeyZ') {
+			camera.position.z +=10;
+		}
 
-    glMatrix.mat4.rotate(yRotationMatrix, identityMatrix, THETA, [0,1,0]);
-    glMatrix.mat4.rotate(xRotationMatrix, identityMatrix, -1*PHI, [1,0,0]); //angle/4 for slower
-    glMatrix.mat4.mul(worldMatrix, xRotationMatrix, yRotationMatrix);
-    gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, worldMatrix);
+		else if (e.code === 'KeyX') {
+			camera.position.z -=10;
+		}
 
-    gl.clearColor(0.165, 0.230, 0.158, 1.0); 
-    gl.clear(gl.DEPTH_BUFFER_BIT | gl.COLOR_BUFFER_BIT);
+}
 
-    gl.bindTexture(gl.TEXTURE_2D, boxTexture);
-		gl.activeTexture(gl.TEXTURE0);
+function animate() {
 
-    gl.drawElements(gl.TRIANGLES, amosIndices.length, gl.UNSIGNED_SHORT, 0);
-    requestAnimationFrame(loop);
-  }
-  requestAnimationFrame(loop);
+    requestAnimationFrame(animate);
+
+    controls.update();
+
+    render();
+
+}
+
+function render() {
+
+    renderer.render(scene, camera);
+
+}
+
+var AddObject = function(i){
+	console.log("Adding: " + i);
+	var objectBase;
+	var mtlLoader = new THREE.MTLLoader();
+	mtlLoader.setBaseUrl('/InNatureOpenGL/assets/');
+	mtlLoader.setPath('/InNatureOpenGL/assets/');
+
+
+	mtlLoader.load(optionsModelMaterialArray[i], function (materials) {
+			materials.preload();
+			var objLoader = new THREE.OBJLoader();
+			objLoader.setMaterials(materials);
+			objLoader.setPath('/InNatureOpenGL/assets/');
+
+				objLoader.load(optionsModelArray[i], function (object) {
+						scene.add(object);
+				});
+
+		});
+}
+
+var UpdateModel = function (){
+
+	scene.remove.apply(scene, scene.children);
+
+	/* Scene */
+
+	scene = new THREE.Scene();
+	lighting = false;
+
+	ambient = new THREE.AmbientLight(0xffffff, 1.0);
+	scene.add(ambient);
+
+	keyLight = new THREE.DirectionalLight(new THREE.Color('hsl(30, 100%, 75%)'), 1.0);
+	keyLight.position.set(-100, 0, 100);
+
+	fillLight = new THREE.DirectionalLight(new THREE.Color('hsl(240, 100%, 75%)'), 0.75);
+	fillLight.position.set(100, 0, 100);
+
+	backLight = new THREE.DirectionalLight(0xffffff, 1.0);
+	backLight.position.set(100, 0, -100).normalize();
+
+	/*Model*/
+	for (var i =0;i<optionsArray.length;i++){
+		if (selectedArray[i]===1 && optionsModelArray[i].includes(".obj")){
+			AddObject(i);
+		}
+		else{
+			console.log(i);
+		}
+	}
+};
+
+
+var InitDemo = function () {
+
+	//-----------------CHECKLIST COMMUNICATIONS--------------------------------------
+
+	var checkList = document.getElementById("communicationsBoxes");
+	var checkedBoxes;
+	// When the user clicks on the button, open the modal
+	checkList.onclick = function(e) {
+	  	checkedBoxes = checkList.querySelectorAll('input[type="checkbox"]:checked').length;
+			if (checkedBoxes===0){
+				document.getElementById("primary").checked = "checked";
+				alert("Please Select At Least One Communication Method")
+			}
+			CalculateCostAndWeight();
+	}
+
+	var checkBox = document.getElementById("solarCheck");
+	checkBox.onclick = function(e) {
+		CalculateCostAndWeight();
+	}
+	var checkBox2 = document.getElementById("propCheck");
+	checkBox2.onclick = function(e) {
+		CalculateCostAndWeight();
+	}
+
+	//-----------------------MODAL JS----------------------------------
+	// Get the modal
+	var modal = document.getElementById("myModal");
+
+	// Get the button that opens the modal
+	var btn = document.getElementById("myBtn");
+
+	// Get the <span> element that closes the modal
+	var span = document.getElementsByClassName("close")[0];
+
+	// When the user clicks on the button, open the modal
+	btn.onclick = function() {
+	  modal.style.display = "block";
+	}
+
+	// When the user clicks on <span> (x), close the modal
+	span.onclick = function() {
+	  modal.style.display = "none";
+	}
+
+	// When the user clicks anywhere outside of the modal, close it
+	window.onclick = function(event) {
+	  if (event.target == modal) {
+	    modal.style.display = "none";
+	  }
+	}
+	//------------------END OF MODAL----------------------------------
+
+	//---------------------DROPDOWN JS----------------------------------
+	var x, i, j, l, ll, selElmnt, a, b, c;
+	/* Look for any elements with the class "custom-select": */
+	x = document.getElementsByClassName("custom-select");
+	l = x.length;
+	for (i = 0; i < l; i++) {
+	  selElmnt = x[i].getElementsByTagName("select")[0];
+	  ll = selElmnt.length;
+	  /* For each element, create a new DIV that will act as the selected item: */
+	  a = document.createElement("DIV");
+	  a.setAttribute("class", "select-selected");
+	  a.innerHTML = selElmnt.options[selElmnt.selectedIndex].innerHTML;
+	  x[i].appendChild(a);
+	  /* For each element, create a new DIV that will contain the option list: */
+	  b = document.createElement("DIV");
+	  b.setAttribute("class", "select-items select-hide");
+	  for (j = 0; j < ll; j++) {
+	    /* For each option in the original select element,
+	    create a new DIV that will act as an option item: */
+	    c = document.createElement("DIV");
+			//c=selElmnt.textContent.split(",")[0];
+	    c.innerHTML = selElmnt.options[j].innerHTML;
+			var currentTitle= c.textContent.split(",")[0];
+			var currentDesc= c.textContent.split(",")[1];
+
+			c1=document.createElement("DIV");
+			c1.innerHTML=currentTitle;
+			c2=document.createElement("DIV");
+			c2.innerHTML=currentDesc;
 
 
 
+	    c.addEventListener("click", function(e) {
+	        /* When an item is clicked, update the original select box,
+	        and the selected item: */
+
+	        var y, i, k, s, h, sl, yl;
+	        s = this.parentNode.parentNode.getElementsByTagName("select")[0];
+	        sl = s.length;
+	        h = this.parentNode.previousSibling;
+	        for (i = 0; i < sl; i++) {
+	          if (s.options[i].innerHTML == this.innerHTML) {
+	            s.selectedIndex = i;
+	            h.innerHTML = this.innerHTML;
+	            y = this.parentNode.getElementsByClassName("same-as-selected");
+
+	            yl = y.length;
+	            for (k = 0; k < yl; k++) {
+	              y[k].removeAttribute("class");
+	            }
+	            this.setAttribute("class", "same-as-selected");
+	            break;
+	          }
+	        }
+	        h.click();
+					CalculateCostAndWeight();
+	    });
+	    b.appendChild(c);
+	  }
+	  x[i].appendChild(b);
+	  a.addEventListener("click", function(e) {
+	    /* When the select box is clicked, close any other select boxes,
+	    and open/close the current select box: */
+	    e.stopPropagation();
+	    closeAllSelect(this);
+	    this.nextSibling.classList.toggle("select-hide");
+	    this.classList.toggle("select-arrow-active");
+	  });
+	}
+
+	function closeAllSelect(elmnt) {
+	  /* A function that will close all select boxes in the document,
+	  except the current select box: */
+	  var x, y, i, xl, yl, arrNo = [];
+	  x = document.getElementsByClassName("select-items");
+	  y = document.getElementsByClassName("select-selected");
+	  xl = x.length;
+	  yl = y.length;
+	  for (i = 0; i < yl; i++) {
+	    if (elmnt == y[i]) {
+	      arrNo.push(i)
+	    } else {
+	      y[i].classList.remove("select-arrow-active");
+	    }
+	  }
+	  for (i = 0; i < xl; i++) {
+	    if (arrNo.indexOf(i)) {
+	      x[i].classList.add("select-hide");
+	    }
+	  }
+	}
+
+	/* If the user clicks anywhere outside the select box,
+	then close all select boxes: */
+	document.addEventListener("click", closeAllSelect);
+//-----------------END DROPDOWN JS------------------------------------
+
+CalculateCostAndWeight();
+
+};
+
+var CalculateCostAndWeight = function(){
+
+
+	var totalPrice=0;
+	var totalWeight=0;
+	var communicationsString = "";
+	var selectedCurrencyIndex=0;
+	document.querySelectorAll('.selectedSolar')[0].innerHTML = ("Solar Panel: Not Selected");
+	document.querySelectorAll('.selectedCage')[0].innerHTML = ("Propeller Cage: Not Selected");
+
+	selectedArray=[];
+	for (var i = 0; i < optionsArray.length; i++){
+		selectedArray.push(0);
+	}
+	console.log(selectedArray);
+
+	//Iterate through drop downs
+	var selects = document.getElementsByClassName("select-selected");
+	for (var i = 0; i < selects.length; i++) {
+		 selectedString=selects.item(i).textContent;
+		 for (var j = 0; j < optionsArray.length; j++) {
+			 if (selectedString === optionsArray[j]){
+				 if (j<4){
+					 //Base Type
+					 document.querySelectorAll('.selectedBase')[0].innerHTML = ("Base Type: ").concat(selectedString);
+				 }
+				 else if (j>=5 && j<=7){
+					 //Propeller
+					 document.querySelectorAll('.selectedPropulsion')[0].innerHTML = ("Propulsion: ").concat(selectedString);
+				 }
+				 else if (j>=9 && j<=10){
+					 //Electronic Boxes
+					 document.querySelectorAll('.selectedEB')[0].innerHTML = ("Electronics Boxes: ").concat(selectedString);
+				 }
+				 else if (j>=11 && j<=13){
+					 //Battery
+					 document.querySelectorAll('.selectedBattery')[0].innerHTML = ("Battery: ").concat(selectedString);
+				 }
+
+
+				 totalPrice += pricesArray[j];
+				 totalWeight += weightsArray[j];
+				 selectedArray[j]=1;
+				 break;
+			 }
+		 }
+		 for (var j = 0; j < currencyArray.length; j++) {
+			  if (selectedString === currencyArray[j]){
+					selectedCurrencyIndex=j;
+					break;
+				}
+		 }
+	}
+
+	//Iterate through checkboxes
+	var checkedBoxArr = document.querySelectorAll('input[type=checkbox]:checked');
+	var labelArray = [];
+	for (var i = 0; i < checkedBoxArr.length; i++) {
+		 labelArray.push(checkedBoxArr.item(i).parentElement.textContent.trim());
+	}
+	for (var i = 0; i < checkedBoxArr.length; i++) {
+		selectedString=labelArray[i];
+		for (var j = 0; j < optionsArray.length; j++) {
+			if (selectedString === optionsArray[j]){
+				if (j==4){
+					//Solar
+					document.querySelectorAll('.selectedSolar')[0].innerHTML = ("Solar Panel: Selected");
+				}
+				else if (j==8){
+					//Propeller Cage
+					document.querySelectorAll('.selectedCage')[0].innerHTML = ("Propeller Cage: Selected");
+				}
+				else if (j>=14 && j<=16){
+					//coms
+					if (communicationsString != ""){
+						communicationsString = communicationsString.concat(", ");
+					}
+					communicationsString = communicationsString.concat(selectedString);
+					document.querySelectorAll('.selectedCom')[0].innerHTML = ("Communications: ").concat(communicationsString);
+				}
+
+				totalPrice += pricesArray[j];
+				totalWeight += weightsArray[j];
+				selectedArray[j]=1;
+				break;
+			}
+		}
+	}
+
+
+
+	 totalPrice = totalPrice*exchangeRatesFromCAD[selectedCurrencyIndex];
+	 if (selectedCurrencyIndex==0){
+		 document.querySelectorAll('.total')[0].innerHTML = ("Price: $").concat((totalPrice).toFixed(2));
+	 }
+	 else if (selectedCurrencyIndex==1){
+		 document.querySelectorAll('.total')[0].innerHTML = ("Price: $").concat((totalPrice).toFixed(2));
+	 }
+	 else{
+		 document.querySelectorAll('.total')[0].innerHTML = ("Price: ").concat(String.fromCharCode(8364)).concat((totalPrice).toFixed(2));
+	 }
+
+
+	 document.querySelectorAll('.weight')[0].innerHTML = ("Weight: ").concat((totalWeight).toFixed(0)).concat("kg");
+
+	 console.log(selectedArray);
+	 UpdateModel();
 };
