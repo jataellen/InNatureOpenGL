@@ -150,8 +150,8 @@ function init() {
     /* Model */
 
     var mtlLoader = new THREE.MTLLoader();
-    mtlLoader.setBaseUrl('InNatureOpenGL/assets/');
-    mtlLoader.setPath('InNatureOpenGL/assets/');
+    mtlLoader.setBaseUrl('assets/');
+    mtlLoader.setPath('assets/');
     mtlLoader.load('catamaranLong.mtl', function (materials) {
 
         materials.preload();
@@ -159,7 +159,7 @@ function init() {
 
         var objLoader = new THREE.OBJLoader();
         objLoader.setMaterials(materials);
-        objLoader.setPath('InNatureOpenGL/assets/');
+        objLoader.setPath('assets/');
         objLoader.load('catamaranLong.obj', function (object) {
             scene.add(object);
         });
@@ -250,15 +250,15 @@ function render() {
 var AddObject = function(i){
 	var objectBase;
 	var mtlLoader = new THREE.MTLLoader();
-	mtlLoader.setBaseUrl('InNatureOpenGL/assets/');
-	mtlLoader.setPath('InNatureOpenGL/assets/');
+	mtlLoader.setBaseUrl('assets/');
+	mtlLoader.setPath('assets/');
 
 
 	mtlLoader.load(optionsModelMaterialArray[i], function (materials) {
 			materials.preload();
 			var objLoader = new THREE.OBJLoader();
 			objLoader.setMaterials(materials);
-			objLoader.setPath('InNatureOpenGL/assets/');
+			objLoader.setPath('assets/');
 
 				objLoader.load(optionsModelArray[i], function (object) {
 						scene.add(object);
