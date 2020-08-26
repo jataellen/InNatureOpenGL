@@ -408,8 +408,39 @@ textarea {
   z-index: 1;
 }
 
+/* Tooltip text */
+.tooltip .tooltipimg {
+  visibility: hidden;
+  width: 250;
+
+  /* Position the tooltip text - see examples below! */
+  position: absolute;
+  z-index: 1;
+}
+
+/* Tooltip text */
+.tooltipCB .tooltipimg {
+  visibility: hidden;
+  width: 250;
+
+  /* Position the tooltip text - see examples below! */
+  position: absolute;
+  z-index: 1;
+}
+
+
 /* Show the tooltip text when you mouse over the tooltip container */
 .tooltip:hover .tooltiptext {
+  visibility: visible;
+}
+
+/* Show the tooltip text when you mouse over the tooltip container */
+.tooltip:hover .tooltipimg {
+  visibility: visible;
+}
+
+/* Show the tooltip text when you mouse over the tooltip container */
+.tooltipCB:hover .tooltipimg {
   visibility: visible;
 }
 
@@ -447,33 +478,64 @@ textarea {
 }
 
 #ttBase{
-  width: 200;
+  width: 500;
+  padding:15px;
   margin-top:-75px;
-  margin-left: -235px;
+  margin-left: -550px;
 }
 #ttSolar{
-  width: 200;
-  margin-left: 10px;
+  width: 500;
+  padding:15px;
+  margin-top:-75px;
+  margin-left: -550px;
 }
 #ttProp{
-  width: 200;
-  margin-left: -229px;
+  width: 500;
+  padding:15px;
+  margin-top:-75px;
+  margin-left: -550px;
 }
 
 #ttPropCage{
-  width: 200;
-  margin-left: 10px;
+  width: 500;
+  padding:15px;
+  margin-top:-75px;
+  margin-left: -550px;
+  padding-bottom: 200px;
+}
+
+#ttPropCageImg{
+  width: 225px;
+  margin-top:100px;
+  margin-left: -400px;
+  padding-bottom: 200px;
 }
 
 #ttBattery{
-  width: 300;
-  margin-left: -329px;
+  width: 500;
+  padding:15px;
+  margin-top:-75px;
+  margin-left: -550px;
+}
+
+#ttEB{
+  width: 500;
+  padding:15px;
+  margin-top:-75px;
+  margin-left: -550px;
 }
 
 #ttRQ{
   width: 500;
   margin-left: 10px;
   margin-top:-20px;
+}
+
+#ttComs{
+  width: 650;
+  padding:15px;
+  margin-top:-75px;
+  margin-left: -700px;
 }
 
 
