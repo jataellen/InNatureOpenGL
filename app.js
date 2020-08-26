@@ -308,23 +308,23 @@ var InitDemo = function () {
 	var checkList = document.getElementById("communicationsBoxes");
 	var checkedBoxes;
 	// When the user clicks on the button, open the modal
-	checkList.onclick = function(e) {
+	checkList.addEventListener( 'change', function() {
 	  	checkedBoxes = checkList.querySelectorAll('input[type="checkbox"]:checked').length;
 			if (checkedBoxes===0){
 				document.getElementById("primary").checked = "checked";
 				alert("Please Select At Least One Communication Method")
 			}
 			CalculateCostAndWeight();
-	}
+	});
 
 	var checkBox = document.getElementById("solarCheck");
-	checkBox.onclick = function(e) {
+	checkBox.addEventListener( 'change', function() {
 		CalculateCostAndWeight();
-	}
+	});
 	var checkBox2 = document.getElementById("propCheck");
-	checkBox2.onclick = function(e) {
+	checkBox2.addEventListener( 'change', function() {
 		CalculateCostAndWeight();
-	}
+	});
 
 	//-----------------------MODAL JS----------------------------------
 	// Get the modal
