@@ -150,8 +150,8 @@ function init() {
     /* Model */
 
     var mtlLoader = new THREE.MTLLoader();
-    mtlLoader.setBaseUrl('assets/');
-    mtlLoader.setPath('assets/');
+    mtlLoader.setBaseUrl('InNatureOpenGL/assets/');
+    mtlLoader.setPath('InNatureOpenGL/assets/');
     mtlLoader.load('catamaranLong.mtl', function (materials) {
 
         materials.preload();
@@ -159,7 +159,7 @@ function init() {
 
         var objLoader = new THREE.OBJLoader();
         objLoader.setMaterials(materials);
-        objLoader.setPath('assets/');
+        objLoader.setPath('InNatureOpenGL/assets/');
         objLoader.load('catamaranLong.obj', function (object) {
             scene.add(object);
         });
@@ -248,18 +248,17 @@ function render() {
 }
 
 var AddObject = function(i){
-	console.log("Adding: " + i);
 	var objectBase;
 	var mtlLoader = new THREE.MTLLoader();
-	mtlLoader.setBaseUrl('assets/');
-	mtlLoader.setPath('assets/');
+	mtlLoader.setBaseUrl('InNatureOpenGL/assets/');
+	mtlLoader.setPath('InNatureOpenGL/assets/');
 
 
 	mtlLoader.load(optionsModelMaterialArray[i], function (materials) {
 			materials.preload();
 			var objLoader = new THREE.OBJLoader();
 			objLoader.setMaterials(materials);
-			objLoader.setPath('assets/');
+			objLoader.setPath('InNatureOpenGL/assets/');
 
 				objLoader.load(optionsModelArray[i], function (object) {
 						scene.add(object);
@@ -293,9 +292,6 @@ var UpdateModel = function (){
 	for (var i =0;i<optionsArray.length;i++){
 		if (selectedArray[i]===1 && optionsModelArray[i].includes(".obj")){
 			AddObject(i);
-		}
-		else{
-			console.log(i);
 		}
 	}
 };
@@ -469,7 +465,6 @@ var CalculateCostAndWeight = function(){
 	for (var i = 0; i < optionsArray.length; i++){
 		selectedArray.push(0);
 	}
-	console.log(selectedArray);
 
 	//Iterate through drop downs
 	var selects = document.getElementsByClassName("select-selected");
@@ -560,6 +555,5 @@ var CalculateCostAndWeight = function(){
 
 	 document.querySelectorAll('.weight')[0].innerHTML = ("Weight: ").concat((totalWeight).toFixed(0)).concat("kg");
 
-	 console.log(selectedArray);
 	 UpdateModel();
 };
