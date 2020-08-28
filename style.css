@@ -485,10 +485,19 @@ textarea {
 }
 #ttSolar{
   width: 500;
+  height: 390;
   padding:15px;
   margin-top:-75px;
   margin-left: -550px;
 }
+
+#ttSolarImg{
+  width: 225px;
+  margin-top:135px;
+  margin-left: -400px;
+  padding-bottom: 200px;
+}
+
 #ttProp{
   width: 500;
   padding:15px;
@@ -505,24 +514,41 @@ textarea {
 }
 
 #ttPropCageImg{
-  width: 225px;
+  width: 180px;
+  height:180px;
   margin-top:100px;
-  margin-left: -400px;
+  margin-left: -375px;
+  padding-bottom: 200px;
+}
+
+#ttEnclosuresImg{
+  margin-top:150px;
+  margin-left: -375px;
   padding-bottom: 200px;
 }
 
 #ttBattery{
   width: 500;
+  height: 300px;
   padding:15px;
   margin-top:-75px;
   margin-left: -550px;
 }
 
+#ttBatteryImg{
+  width: 140px;
+  height:140px;
+  margin-top:100px;
+  margin-left: -375px;
+  padding-bottom: 200px;
+}
+
 #ttEB{
   width: 500;
+  height: 300;
   padding:15px;
-  margin-top:-75px;
-  margin-left: -550px;
+  margin-top:-65px;
+  margin-left: -520px;
 }
 
 #ttRQ{
