@@ -23,16 +23,16 @@ var optionsArray = ["Catamaran",
 
 //i there is no .obj in the string, there is no associated change in model
 var optionsModelArray = ['catamaranLong.obj',
-	'surfboardLong',
+	'surfboardLong.obj',
 	'catamaranShort',
 	'surfboardShort',
 	'solarPanel.obj',
 	'airPropeller.obj',
-	'singleWaterPropeller',
-	'dualWaterPropeller',
+	'singleWaterPropeller.obj',
+	'dualWaterPropeller.obj',
 	'propellerCage.obj',
 	'twoLargeEnclosures.obj',
-	'threeSmallEnclosures',
+	'threeSmallEnclosures.obj',
 	'battery10',
 	'battery23',
 	'battery46',
@@ -40,6 +40,7 @@ var optionsModelArray = ['catamaranLong.obj',
 	'cellularUSB',
 	'satelliteModem'
 ]
+
 
 var optionsModelMaterialArray = ['catamaranLong.mtl',
 	'surfboardLong.mtl',
@@ -267,6 +268,26 @@ var AddObject = function(i){
 		});
 }
 
+var AddAlternateObject = function(stringVal){
+	var objectBase;
+	var mtlLoader = new THREE.MTLLoader();
+	mtlLoader.setBaseUrl('assets/');
+	mtlLoader.setPath('assets/');
+
+
+	mtlLoader.load(stringVal + ".mtl", function (materials) {
+			materials.preload();
+			var objLoader = new THREE.OBJLoader();
+			objLoader.setMaterials(materials);
+			objLoader.setPath('assets/');
+
+				objLoader.load(stringVal + ".obj", function (object) {
+						scene.add(object);
+				});
+
+		});
+}
+
 var UpdateModel = function (){
 
 	scene.remove.apply(scene, scene.children);
@@ -291,10 +312,37 @@ var UpdateModel = function (){
 	/*Model*/
 	for (var i =0;i<optionsArray.length;i++){
 		if (selectedArray[i]===1 && optionsModelArray[i].includes(".obj")){
-			AddObject(i);
+			if (optionsModelArray[i].includes("propellerCage") && (selectedArray[6]===1 || selectedArray[7]===1) ){
+				//if water option selected, propeller cage is different
+				//AddAlternateObject("propellerCageEmpty");
+				//no file to add in this case though, but you would add it here
+				console.log("Water propeller cage");
+			}
+			else if ( optionsModelArray[i].includes("propellerCage") && selectedArray[10]===1 ){
+				//three boxes selected, load lower propeller
+				AddAlternateObject("propellerCageLower");
+			}
+			else if ( optionsModelArray[i].includes("airPropeller") && selectedArray[10]===1 ){
+				//three boxes selected, load lower propeller
+				AddAlternateObject("airPropellerLower");
+			}
+			else if ( optionsModelArray[i].includes("dualWaterPropeller") && selectedArray[1]===1 ){
+				//dual water for surfboard
+				AddAlternateObject("dualPropSurf");
+			}
+			else if ( optionsModelArray[i].includes("singleWaterPropeller") && selectedArray[1]===1 ){
+				//single water for surfboard
+				AddAlternateObject("singlePropSurf");
+			}
+			else{
+				AddObject(i);
+			}
+
 		}
 	}
 };
+
+
 
 
 var InitDemo = function () {
