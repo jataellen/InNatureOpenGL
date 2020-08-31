@@ -182,7 +182,16 @@ function init() {
     controls = new THREE.OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.25;
-    controls.enableZoom = false;
+    controls.enableZoom = true;
+		controls.minDistance=100;
+		controls.maxDistance=500;
+
+		controls.keys = {
+			LEFT: 39, //left arrow
+			UP: 40, // up arrow
+			RIGHT: 37, // right arrow
+			BOTTOM: 38 // down arrow
+		}
 
     /* Events */
 
@@ -222,13 +231,13 @@ function onKeyboardEvent(e) {
 
     }
 
-		else if (e.code === 'KeyZ') {
-			camera.position.z +=10;
-		}
-
-		else if (e.code === 'KeyX') {
-			camera.position.z -=10;
-		}
+		// else if (e.code === 'KeyZ') {
+		// 	camera.position.z +=10;
+		// }
+		//
+		// else if (e.code === 'KeyX') {
+		// 	camera.position.z -=10;
+		// }
 
 }
 

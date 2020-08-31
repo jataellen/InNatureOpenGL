@@ -1,9 +1,10 @@
 # WebGL 3D Model Viewer Using three.js
 
-## Specification
-
-* OBJ loader for loading a geometry format that is as old and widely supported as GIFs.
-* MTL loader for loading really simple materials.
-* Orbit controls to smoothly turn the camera around the model.
-* Nearest-neighbor filtering and a pure white ambient light to showcase pixel art textures.
 * All libraries taken from the [three.js](https://github.com/mrdoob/three.js/) repository.
+
+* Adding New Element:
+Create model in TinkerCAD
+Export as "obj"
+Extract obj and mtl to "assets"
+Add to appropriate array (price and weight must also be updated)
+Add Element directly to drop down in html list or add new checkbox item in html
